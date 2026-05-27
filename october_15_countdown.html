@@ -1,0 +1,71 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:transparent}
+.wrap{min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1rem;position:relative;overflow:hidden}
+.bg-ring{position:absolute;width:600px;height:600px;border-radius:50%;border:0.5px solid var(--color-border-tertiary);pointer-events:none}
+.bg-ring:nth-child(2){width:420px;height:420px}
+.bg-ring:nth-child(3){width:240px;height:240px;opacity:.5}
+.title{font-family:'DM Serif Display',serif;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:2.5rem}
+.target-date{font-family:'DM Serif Display',serif;font-size:36px;color:var(--color-text-primary);margin-bottom:.4rem;letter-spacing:-.01em}
+.target-date em{font-style:italic;color:var(--color-text-secondary)}
+.units{display:flex;gap:clamp(12px,3vw,32px);margin-top:2.5rem}
+.unit{display:flex;flex-direction:column;align-items:center;gap:6px}
+.num{font-family:'DM Mono',monospace;font-size:clamp(40px,8vw,72px);font-weight:500;color:var(--color-text-primary);line-height:1;min-width:2ch;text-align:center;transition:opacity .2s}
+.lbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-text-secondary)}
+.sep{font-family:'DM Mono',monospace;font-size:clamp(40px,8vw,72px);font-weight:400;color:var(--color-border-secondary);line-height:1;align-self:flex-start;margin-top:2px}
+.bar-wrap{width:min(400px,90%);margin-top:2rem;height:2px;background:var(--color-border-tertiary);border-radius:2px;overflow:hidden}
+.bar{height:100%;background:var(--color-text-secondary);border-radius:2px;transition:width .5s ease}
+.pct{font-size:12px;color:var(--color-text-tertiary);margin-top:.5rem;font-family:'DM Mono',monospace}
+.done{font-family:'DM Serif Display',serif;font-size:32px;color:var(--color-text-primary);text-align:center}
+</style>
+<div class="wrap">
+  <div class="bg-ring"></div>
+  <div class="bg-ring"></div>
+  <div class="bg-ring"></div>
+  <p class="title">Counting down to</p>
+  <p class="target-date">October <em>15</em></p>
+  <div class="units" id="units">
+    <div class="unit"><span class="num" id="days">--</span><span class="lbl">Days</span></div>
+    <span class="sep">:</span>
+    <div class="unit"><span class="num" id="hours">--</span><span class="lbl">Hours</span></div>
+    <span class="sep">:</span>
+    <div class="unit"><span class="num" id="mins">--</span><span class="lbl">Minutes</span></div>
+    <span class="sep">:</span>
+    <div class="unit"><span class="num" id="secs">--</span><span class="lbl">Seconds</span></div>
+  </div>
+  <div class="bar-wrap"><div class="bar" id="bar" style="width:0%"></div></div>
+  <p class="pct" id="pct"></p>
+</div>
+<script>
+function pad(n){return String(n).padStart(2,'0')}
+function tick(){
+  const now=new Date();
+  const year=now.getMonth()>=9&&now.getDate()>=15&&now.getMonth()>=9?now.getFullYear()+1:now.getFullYear();
+  const actualYear=now.getFullYear();
+  const target=new Date(now.getMonth()>9||(now.getMonth()===9&&now.getDate()>=15)?actualYear+1:actualYear,9,15,0,0,0);
+  const diff=target-now;
+  if(diff<=0){
+    document.querySelector('.wrap').innerHTML='<p class="done">🎉 October 15 is here!</p>';
+    return;
+  }
+  const totalSec=Math.floor(diff/1000);
+  const d=Math.floor(totalSec/86400);
+  const h=Math.floor((totalSec%86400)/3600);
+  const m=Math.floor((totalSec%3600)/60);
+  const s=totalSec%60;
+  document.getElementById('days').textContent=d;
+  document.getElementById('hours').textContent=pad(h);
+  document.getElementById('mins').textContent=pad(m);
+  document.getElementById('secs').textContent=pad(s);
+  const yearStart=new Date(target.getFullYear()-1,9,15);
+  const total=target-yearStart;
+  const elapsed=total-(target-now);
+  const pct=Math.min(100,(elapsed/total)*100);
+  document.getElementById('bar').style.width=pct.toFixed(2)+'%';
+  document.getElementById('pct').textContent=pct.toFixed(1)+'% of the year elapsed';
+}
+tick();
+setInterval(tick,1000);
+</script>
